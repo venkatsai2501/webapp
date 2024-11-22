@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ project.title }}{% endblock %}
+
+{% block content %}
+<div class="project-detail-container">
+    <!-- Project Title -->
+    <h2 class="project-title">{{ project.title }}</h2>
+
+    <!-- Project Information -->
+    <div class="project-info">
+        <p><strong>Description:</strong> {{ project.description }}</p>
+        <p><strong>Views:</strong> {{ project.views }}</p>
+        <p><strong>Team Members:</strong> 
+            {% for team in project.team_members.all %}
+                {{ team.username }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+                No Team members assigned.
+            {% endfor %}
+        </p>
+        <!-- project_detail.html -->
+        <p><strong>Faculty Members:</strong> 
+            {% for faculty in project.faculty_members.all %}
+                {{ faculty.username }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+                No faculty members assigned.
+            {% endfor %}
+        </p>
+        <p><strong>Department:</strong> {{ project.department }}</p>
+        <p><strong>University:</strong> {{ project.university }}</p>
+    </div>
+    
+    <!-- Image Section -->
+    {% if project.image %}
+        <div class="project-media">
+            <img src="{{ project.image.url }}" alt="{{ project.title }}" class="project-image">
+        </div>
+    {% endif %}
+
+    <!-- Video Section -->
+    {% if project.video %}
+        <div class="video-wrapper">
+            <video controls class="project-video">
+                <source src="{{ project.video.url }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    {% endif %}
+
+    <!-- Document Section -->
+    {% if project.document %}
+        <div class="project-document">
+            <a href="{{ project.document.url }}" class="btn btn-secondary">Download Project Document</a>
+        </div>
+    {% endif %}
+    {% if project.github_link %}
+        <p><strong>GitHub Link:</strong> <a href="{{ project.github_link }}" target="_blank">{{ project.github_link }}</a></p>
+    {% endif %}
+    <!-- Tags Section -->
+    <div class="project-tags">
+        <p><strong>Tags:</strong></p>
+        <ul class="tags-list">
+            {% for tag in project.tags.all %}
+                <li class="tag-item">{{ tag.name }}</li>
+            {% empty %}
+                <li>No tags assigned.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% if request.user.is_authenticated %}
+        <!-- Project Actions: Conditional for Faculty -->
+        {% if request.user.profile.role != 'faculty' %}
+            <div class="project-actions">
+                <a href="{% url 'edit_project' project.id %}" class="btn btn-primary">Edit Project</a>
+                <form action="{% url 'delete_project' project.id %}" method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        {% endif %}
+    
+        <!-- Reviews Section -->
+        <div class="project-reviews">
+            <h3>Reviews</h3>
+            {% if reviews %}
+                <div class="reviews-container">
+                    {% for review in reviews %}
+                        <div class="review">
+                            <strong>{{ review.user.username }}</strong> - {{ review.rating }} ★
+                            <p>{{ review.comment }}</p>
+                            <small>Reviewed on {{ review.created_at }}</small>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No reviews yet. Be the first to review this project!</p>
+            {% endif %}
+        </div>
+
+        <!-- Review Form Section -->
+        {% if user_review %}
+            <div class="user-review">
+                <h4>You rated this project {{ user_review.rating }} ★</h4>
+                <p>{{ user_review.comment }}</p>
+            </div>
+        {% else %}
+            <h3>Rate this project</h3>
+            <form method="post" class="review-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+            </form>
+        {% endif %}
+    {% endif %}
+    <!-- Average Rating -->
+    <div class="average-rating">
+        <h2>Average Rating: {{ project.average_rating }} ★</h2>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>Landing Page</title>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <div class="logo">
+                <h1>CapstoneConnect</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Contact</a></li>
+                <li><a href="{% url 'login' %}">Login</a></li>
+                <li><a href="{% url 'signup' %}">Sign Up</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="hero-section">
+        <h1>Welcome to CapstoneConnect</h1>
+        <p>Bringing Projects and People Together.</p>
+        <a href="{% url 'view_all_projects' %}" class="cta-btn">Explore Projects</a>
+    </div>
+
+    <!-- Projects Section -->
+    <section id="projects" class="projects-section">
+        <h2>Featured Projects</h2>
+        <div class="project-cards">
+            <div class="card">
+                <h3>Project One</h3>
+                <p>A brief description of the first project. Learn more about the work students have done.</p>
+            </div>
+            <div class="card">
+                <h3>Project Two</h3>
+                <p>Another exciting project from our students showcasing innovation and creativity.</p>
+            </div>
+            <div class="card">
+                <h3>Project Three</h3>
+                <p>A cutting-edge project that brings new solutions to the table.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Faculty Section -->
+    <section class="faculty-section">
+        <h2>Meet Our Faculty</h2>
+        <p>Our faculty members are here to mentor and guide students on their capstone journey.</p>
+        <div class="faculty-cards">
+            <div class="card">
+                <h3>Dr. Smith</h3>
+                <p>Expert in Machine Learning and Data Science.</p>
+            </div>
+            <div class="card">
+                <h3>Dr. Johnson</h3>
+                <p>Specializes in Software Engineering and Project Management.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 My Project. All rights reserved.</p>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>User Profile</title>
+</head>
+<body>
+    <h1>Welcome to your profile, {{ user.username }}!</h1>
+
+    <h2>Create a New Project</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save Project</button>
+    </form>
+
+    <h2>Your Projects</h2>
+    {% if projects %}
+        <ul>
+            {% for project in projects %}
+                <li>
+                    <h3>{{ project.title }}</h3>
+                    <p><strong>Team Members:</strong> {{ project.team_members }}</p>
+                    <p><strong>Faculty Members:</strong> {{ project.faculty_members }}</p>
+                    <p><strong>Department:</strong> {{ project.department }}</p>
+                    <p><strong>University:</strong> {{ project.university }}</p>
+                    <p><strong>Description:</strong> {{ project.description }}</p>
+                    {% if project.video %}
+                        <p><strong>Video:</strong> <a href="{{ project.video }}" target="_blank">Watch Video</a></p>
+                    {% endif %}
+                    {% if project.document %}
+                        <p><strong>Document:</strong> <a href="{{ project.document.url }}">Download Document</a></p>
+                    {% endif %}
+                    {% if project.images %}
+                        <p><strong>Images:</strong> <img src="{{ project.images.url }}" alt="Project Image" style="max-width: 200px;"></p>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No projects created yet.</p>
+    {% endif %}
+</body>
+</html>

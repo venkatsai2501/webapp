@@ -1,0 +1,10 @@
+alice_student	Al@c12345!
+bob_student	    B0b@67890!
+charlie_student	Ch@r11223!
+diana_student	Di@n33445!
+eric_student	Er!c55667!
+frank_faculty	Fr@nk67890!
+grace_faculty	Gr@c11223!
+henry_faculty	Hen@33445!
+isabel_faculty	Is@bel55667!
+james_faculty	Ja!m12345@

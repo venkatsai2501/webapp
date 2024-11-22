@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Create New Project{% endblock %}
+
+{% block content %}
+<div class="create-project-container">
+    <h2>Create New Project</h2>
+    
+    <form method="POST" enctype="multipart/form-data" class="project-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <div class="form-group">
+            <h4>Add New Tags:</h4>
+            <input type="text" name="new_tags" placeholder="Enter new tags separated by commas" class="input-text">
+        </div>
+
+        <button type="submit" class="btn create-project-btn">Create Project</button>
+    </form>
+</div>
+{% endblock %}

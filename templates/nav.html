@@ -1,0 +1,23 @@
+<nav>
+    <div class="container">
+        <div class="logo">
+            <h1>My Project</h1>
+        </div>
+        <ul class="nav-links">
+            <li><a href="{% url 'landing' %}">Home</a></li>
+            <li><a href="{% url 'view_all_projects' %}">Explore Projects</a></li>
+            <!-- Check if the user is not a faculty member to show 'Create Project' -->
+            {% if user.is_authenticated %}
+                {% if request.user.profile.role != 'faculty' %}
+                    <li><a href="{% url 'create_project' %}">Create New Project</a></li>
+                {% endif %}
+                <li><a href="{% url 'view_my_projects' %}">My Projects</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            {% else %}
+             <li><a href="{% url 'login' %}">Login</a></li>
+             <li><a href="{% url 'signup' %}">Sign Up</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+
