@@ -48,6 +48,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import ProjectForm
 from .models import Tag, User  # Assuming Tag and User are imported
 
+
 @login_required
 def create_project_view(request):
     if request.method == 'POST':
@@ -80,13 +81,26 @@ def create_project_view(request):
                     tag, created = Tag.objects.get_or_create(name=tag_name)
                     project.tags.add(tag)
 
-            return redirect('view_my_projects')  # Redirect after saving
+            return redirect('view_my_projects')  # Redirect to a success page
+        else:
+            # If the form is invalid, render the form with errors
+            faculty_users = Profile.objects.filter(role='faculty')
+            team_users = Profile.objects.filter(role='student')
+            return render(request, 'create_project.html', {
+                'form': form,
+                'faculty_users': faculty_users,
+                'team_users': team_users,
+            })
     else:
+        # Handle GET request
         form = ProjectForm()
-        # Fetch the faculty and student users
         faculty_users = Profile.objects.filter(role='faculty')
         team_users = Profile.objects.filter(role='student')
-        return render(request, 'create_project.html', {'form': form, 'faculty_users': faculty_users, 'team_users': team_users})
+        return render(request, 'create_project.html', {
+            'form': form,
+            'faculty_users': faculty_users,
+            'team_users': team_users,
+        })
 
     
 @login_required

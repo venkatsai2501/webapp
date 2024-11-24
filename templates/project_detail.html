@@ -67,7 +67,7 @@
             {% endfor %}
         </ul>
     </div>
-    {% if request.user.is_authenticated %}
+    {% if request.user.is_authenticated and project.user == user%}
         <!-- Project Actions: Conditional for Faculty -->
         {% if request.user.profile.role != 'faculty' %}
             <div class="project-actions">

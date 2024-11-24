@@ -4,18 +4,126 @@
 
 {% block content %}
 <div class="create-project-container">
-    <h2>Create New Project</h2>
-    
-    <form method="POST" enctype="multipart/form-data" class="project-form">
-        {% csrf_token %}
-        {{ form.as_p }}
+    <div class="form-card">
+        <h2 class="form-title">Create New Project</h2>
 
-        <div class="form-group">
-            <h4>Add New Tags:</h4>
-            <input type="text" name="new_tags" placeholder="Enter new tags separated by commas" class="input-text">
-        </div>
+        <form method="POST" enctype="multipart/form-data" class="project-form">
+            {% csrf_token %}
+            
+            <!-- Project Title -->
+            <div class="form-group">
+                <label for="id_title">Project Title</label>
+                {{ form.title }}
+            </div>
 
-        <button type="submit" class="btn create-project-btn">Create Project</button>
-    </form>
+            <!-- Project Description -->
+            <div class="form-group">
+                <label for="id_description">Project Description</label>
+                {{ form.description }}
+            </div>
+
+            <!-- Department -->
+            <div class="form-group">
+                <label for="id_department">Department</label>
+                {{ form.department }}
+            </div>
+
+            <!-- University -->
+            <div class="form-group">
+                <label for="id_university">University</label>
+                {{ form.university }}
+            </div>
+
+            <!-- Upload Project Files -->
+            <div class="form-group">
+                <label for="id_image">Project Image</label>
+                {{ form.image }}
+            </div>
+            <div class="form-group">
+                <label for="id_video">Project Video</label>
+                {{ form.video }}
+            </div>
+            <div class="form-group">
+                <label for="id_document">Project Document</label>
+                {{ form.document }}
+            </div>
+            <div class="form-group">
+                <label for="id_github_link">GitHub Link</label>
+                {{ form.github_link }}
+            </div>
+
+            <!-- Team Members -->
+            <div class="form-group">
+                <label for="team-members">Team Members</label>
+                <select id="team-members" name="team_members" class="input-select" multiple>
+                    {% for team_user in team_users %}
+                        <option value="{{ team_user.id }}">{{ team_user.user.username }}</option>
+                    {% endfor %}
+                </select>
+                <div id="selected-team-members" class="selected-list"></div>
+            </div>
+
+            <!-- Faculty Members -->
+            <div class="form-group">
+                <label for="faculty-members">Faculty Members</label>
+                <select id="faculty-members" name="faculty_members" class="input-select" multiple>
+                    {% for faculty_user in faculty_users %}
+                        <option value="{{ faculty_user.id }}">{{ faculty_user.user.username }}</option>
+                    {% endfor %}
+                </select>
+                <div id="selected-faculty-members" class="selected-list"></div>
+            </div>
+
+            <!-- Tags -->
+            <div class="form-group">
+                <label for="tags">Tags</label>
+                <select id="tags" name="tags" class="input-select" multiple>
+                    {% for tag in form.fields.tags.queryset %}
+                        <option value="{{ tag.id }}">{{ tag.name }}</option>
+                    {% endfor %}
+                </select>
+                <div id="selected-tags" class="selected-list"></div>
+            </div>
+
+            <!-- Add New Tags -->
+            <div class="form-group">
+                <label for="new-tags">Add New Tags</label>
+                <input type="text" id="new-tags" name="new_tags" placeholder="Enter new tags separated by commas" class="input-text">
+            </div>
+
+            <button type="submit" class="btn create-project-btn">Create Project</button>
+        </form>
+    </div>
 </div>
+
+<!-- JavaScript for Interactive Dropdowns -->
+<script>
+    function handleSelection(selectElementId, selectedListId) {
+        const selectElement = document.getElementById(selectElementId);
+        const selectedList = document.getElementById(selectedListId);
+
+        selectElement.addEventListener('change', () => {
+            selectedList.innerHTML = ''; // Clear previous selections
+            Array.from(selectElement.selectedOptions).forEach(option => {
+                const div = document.createElement('div');
+                div.className = 'selected-item';
+                div.textContent = option.text;
+                div.dataset.id = option.value;
+
+                // Add toggle functionality
+                div.addEventListener('click', () => {
+                    option.selected = false;
+                    div.remove();
+                });
+
+                selectedList.appendChild(div);
+            });
+        });
+    }
+
+    // Initialize dropdown handlers
+    handleSelection('team-members', 'selected-team-members');
+    handleSelection('faculty-members', 'selected-faculty-members');
+    handleSelection('tags', 'selected-tags');
+</script>
 {% endblock %}
