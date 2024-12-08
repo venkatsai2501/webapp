@@ -3,13 +3,124 @@
 {% block title %}Create New Project{% endblock %}
 
 {% block content %}
+<style>
+    /* Container styling */
+    .create-project-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start; /* Align to the top */
+        padding: 40px 20px;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        width: 100%; /* Allow full width of the screen */
+        max-width: 1000px; /* Set the max-width to make the form wider */
+        margin: 0 auto; /* Centers the form container horizontally */
+    }
+
+    .form-card {
+        background: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 25px;
+        width: 100%; /* Take full width of its parent */
+    }
+
+
+    .form-title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 25px;
+        color: #343a40;
+        text-align: center;
+    }
+
+    /* Form group styling */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+        font-size: 14px;
+        color: #495057;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    input,
+    select,
+    textarea {
+        width: 100%;
+        padding: 12px;
+        font-size: 14px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+    }
+
+    .input-select {
+        height: auto;
+    }
+
+    /* Button styling - Compact and centered */
+    .btn {
+        display: inline-block;
+        background: #007bff;
+        color: #ffffff;
+        border: none;
+        padding: 8px 18px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        margin: 5px auto;
+        width: auto;
+    }
+
+    .btn:hover {
+        background: #0056b3;
+    }
+
+    /* Selected list styling */
+    .selected-list {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .selected-item {
+        background: #e9ecef;
+        color: #343a40;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .selected-item:hover {
+        background: #ced4da;
+    }
+</style>
+
 <div class="create-project-container">
     <div class="form-card">
         <h2 class="form-title">Create New Project</h2>
 
         <form method="POST" enctype="multipart/form-data" class="project-form">
             {% csrf_token %}
-            
+
             <!-- Project Title -->
             <div class="form-group">
                 <label for="id_title">Project Title</label>
@@ -91,12 +202,12 @@
                 <input type="text" id="new-tags" name="new_tags" placeholder="Enter new tags separated by commas" class="input-text">
             </div>
 
-            <button type="submit" class="btn create-project-btn">Create Project</button>
+            <button type="submit" name="save" class="btn create-project-btn">Save</button>
+            <button type="submit" name="submit" class="btn create-project-btn">Submit</button>
         </form>
     </div>
 </div>
 
-<!-- JavaScript for Interactive Dropdowns -->
 <script>
     function handleSelection(selectElementId, selectedListId) {
         const selectElement = document.getElementById(selectElementId);

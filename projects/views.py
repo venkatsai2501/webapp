@@ -10,6 +10,7 @@ from .forms import SignUpForm
 from .models import Profile
 from django.contrib.auth import login
 from django.db.models.functions import ExtractYear
+
 def signup_view(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -25,7 +26,28 @@ def signup_view(request):
     return render(request, 'signup.html', {'form': form})
 
 def landing_page(request):
-    return render(request, 'landing.html')
+    # Write the raw SQL query
+    query = '''
+        SELECT 
+            projects_project.id, 
+            projects_project.title, 
+            projects_project.description, 
+            AVG(projects_review.rating) AS avg_rating
+        FROM 
+            projects_project
+        JOIN 
+            projects_review ON projects_project.id = projects_review.project_id
+        GROUP BY 
+            projects_project.id, projects_project.title, projects_project.description
+        ORDER BY 
+            avg_rating DESC
+        LIMIT 3;
+    '''
+    
+    # Execute the query using raw()
+    top_projects = Project.objects.raw(query)
+
+    return render(request, 'landing.html', {'top_projects': top_projects})
 
 def home(request):
     return render(request, 'landing.html')
@@ -55,7 +77,14 @@ def create_project_view(request):
         form = ProjectForm(request.POST, request.FILES)
         if form.is_valid():
             project = form.save(commit=False)
-            project.user = request.user  # Associate project with logged-in user
+            project.user = request.user  # Associate project with the logged-in user
+            
+            # Check which button was clicked
+            if 'save' in request.POST:
+                project.status = 'draft'  # Set status as draft if 'Save' button is clicked
+            elif 'submit' in request.POST:
+                project.status = 'submitted'  # Set status as submitted if 'Submit' button is clicked
+            
             project.save()
 
             # Handle faculty members
@@ -66,14 +95,14 @@ def create_project_view(request):
             # Handle team members
             team_member_ids = request.POST.getlist('team_members')
             team_members = Profile.objects.filter(id__in=team_member_ids, role='student')
-            project.team_members.set([member.user for member in team_members if member.user])  # Avoid None users
+            project.team_members.set([member.user for member in team_members if member.user])
 
-            # Handle tags (add selected tags)
+            # Handle tags
             tags = form.cleaned_data.get('tags')
             for tag in tags:
                 project.tags.add(tag)
 
-            # Handle new tags (if any)
+            # Handle new tags
             new_tag_names = request.POST.getlist('new_tags')
             for tag_name in new_tag_names:
                 tag_name = tag_name.strip()
@@ -81,9 +110,13 @@ def create_project_view(request):
                     tag, created = Tag.objects.get_or_create(name=tag_name)
                     project.tags.add(tag)
 
-            return redirect('view_my_projects')  # Redirect to a success page
+            # Redirect based on action
+            if project.status == 'draft':
+                return redirect('view_my_projects')  # Redirect to "My Projects" for drafts
+            else:
+                return redirect('view_my_projects')  # Redirect to explore page for submitted projects
         else:
-            # If the form is invalid, render the form with errors
+            # If the form is invalid, reload the page with errors
             faculty_users = Profile.objects.filter(role='faculty')
             team_users = Profile.objects.filter(role='student')
             return render(request, 'create_project.html', {
@@ -101,22 +134,28 @@ def create_project_view(request):
             'faculty_users': faculty_users,
             'team_users': team_users,
         })
-
     
 @login_required
 def view_my_projects_view(request):
     if request.user.profile.role == 'faculty':
-        # If the logged-in user is a faculty member, fetch projects where the user is in faculty_members
+        # For faculty, fetch projects where the user is in faculty_members
         user_projects = Project.objects.filter(faculty_members=request.user)
+        return render(request, 'my_projects.html', {
+            'projects': user_projects,  # Pass projects directly
+            'role': 'faculty'  # Pass the role for template use
+        })
     else:
-        # If the logged-in user is a student, fetch their own projects
-        user_projects = Project.objects.filter(user=request.user)
-
-    return render(request, 'my_projects.html', {'projects': user_projects})
-
-
+        # For students, bifurcate projects into draft and submitted
+        draft_projects = Project.objects.filter(user=request.user, status='draft')  # Drafts
+        submitted_projects = Project.objects.filter(user=request.user, status='submitted')  # Submitted projects
+        return render(request, 'my_projects.html', {
+            'draft_projects': draft_projects,
+            'submitted_projects': submitted_projects,
+            'role': 'student'  # Pass the role for template use
+        })
+    
 def view_all_projects_view(request):
-    projects = Project.objects.all()
+    projects = Project.objects.filter(status='submitted')
 
     # Handle tag filtering
     tag_id = request.GET.get('tag_id')
@@ -172,8 +211,14 @@ def view_all_projects_view(request):
 
 @login_required
 def my_projects(request):
-    projects = Project.objects.filter(user=request.user)  # Assuming projects are associated with a user
-    return render(request, 'my_projects.html', {'projects': projects})
+    # Get projects based on their status
+    saved_projects = Project.objects.filter(user=request.user, status='draft')
+    submitted_projects = Project.objects.filter(user=request.user, status='submitted')
+
+    return render(request, 'my_projects.html', {
+        'saved_projects': saved_projects,
+        'submitted_projects': submitted_projects,
+    })
 
 @login_required
 def delete_project(request, project_id):
@@ -187,16 +232,28 @@ def delete_project(request, project_id):
 
 @login_required
 def edit_project(request, project_id):
-    project = get_object_or_404(Project, id=project_id, user=request.user)  # Ensure the user owns the project
+    # Retrieve the project and ensure it belongs to the logged-in user
+    project = get_object_or_404(Project, id=project_id, user=request.user)
 
     if request.method == 'POST':
         form = ProjectForm(request.POST, request.FILES, instance=project)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Project updated successfully.')
-            return redirect('view_my_projects')  # Redirect to 'my_projects' page after editing
+            project = form.save(commit=False)
+
+            # Check which button was clicked
+            if 'save_changes' in request.POST:
+                project.status = 'draft'  # Keep it as a draft
+                message = "Project changes saved as draft."
+            elif 'submit' in request.POST:
+                project.status = 'submitted'  # Mark the project as submitted
+                message = "Project has been successfully submitted."
+
+            project.save()  # Save the updated project
+            messages.success(request, message)  # Add a success message
+            return redirect('view_my_projects')  # Redirect to the "My Projects" page
     else:
-        form = ProjectForm(instance=project)  # Pre-fill the form with the current project data
+        # Populate the form with the existing project data
+        form = ProjectForm(instance=project)
 
     return render(request, 'edit_project.html', {'form': form, 'project': project})
 
@@ -208,6 +265,7 @@ def project_detail(request, pk):
     viewed_projects = request.session.get('viewed_projects', [])
 
     if pk not in viewed_projects:
+        project.views = int(project.views)
         project.views += 1
         project.save()
         viewed_projects.append(pk)

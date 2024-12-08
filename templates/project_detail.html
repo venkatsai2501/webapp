@@ -67,7 +67,7 @@
             {% endfor %}
         </ul>
     </div>
-    {% if request.user.is_authenticated and project.user == user%}
+    {% if request.user.is_authenticated %}
         <!-- Project Actions: Conditional for Faculty -->
         {% if request.user.profile.role != 'faculty' %}
             <div class="project-actions">
@@ -78,7 +78,7 @@
                 </form>
             </div>
         {% endif %}
-    
+
         <!-- Reviews Section -->
         <div class="project-reviews">
             <h3>Reviews</h3>
@@ -88,7 +88,7 @@
                         <div class="review">
                             <strong>{{ review.user.username }}</strong> - {{ review.rating }} ★
                             <p>{{ review.comment }}</p>
-                            <small>Reviewed on {{ review.created_at }}</small>
+                            <small>Reviewed on {{ review.created_at}} </small>
                         </div>
                     {% endfor %}
                 </div>

@@ -20,9 +20,16 @@ class Tag(models.Model):
         return self.name
 
 class Project(models.Model):
+
+    STATUS_CHOICES = (
+        ('draft', 'Draft'),
+        ('submitted', 'Submitted'),
+    )
+    
     title = models.CharField(max_length=200)
     team_members =  models.ManyToManyField(User, related_name='team_members', blank=True)
     faculty_members = models.ManyToManyField(User, related_name='assigned_projects', blank=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')  # Add status field
     department = models.CharField(max_length=100)
     university = models.CharField(max_length=200)
     description = models.TextField()

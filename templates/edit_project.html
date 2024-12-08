@@ -1,15 +1,61 @@
-<!-- edit_project.html -->
 {% extends 'base.html' %}
 
 {% block title %}Edit Project{% endblock %}
 
 {% block content %}
-    <h2>Edit Project: {{ project.title }}</h2>
+<section style="padding: 2rem 1rem; background-color: #f8f9fa;">
+    <!-- Section Title -->
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h2 style="font-size: 2rem; font-weight: bold;">Edit Project</h2>
+        <p style="color: #6c757d;">Make changes to your project details below.</p>
+    </div>
 
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-success">Save Changes</button>
-        <a href="{% url 'view_my_projects' %}" class="btn btn-secondary">Cancel</a>
-    </form>
+    <!-- Project Edit Form -->
+    <div style="max-width: 800px; margin: 0 auto; background: #fff; padding: 2rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); border-radius: 8px;">
+        <form method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            {% csrf_token %}
+
+            <!-- Form Fields -->
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                {{ form.as_p }}
+            </div>
+
+            <!-- Buttons -->
+            <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;">
+                <button type="submit" name="save_changes" style="
+                    padding: 0.75rem 1.5rem; 
+                    background-color: #28a745; 
+                    color: white; 
+                    border: none; 
+                    border-radius: 5px; 
+                    cursor: pointer;
+                    font-size: 1rem;
+                ">
+                    Save Changes
+                </button>
+                <a href="{% url 'view_my_projects' %}" style="
+                    padding: 0.75rem 1.5rem; 
+                    background-color: #6c757d; 
+                    color: white; 
+                    text-decoration: none; 
+                    border-radius: 5px; 
+                    font-size: 1rem;
+                ">
+                    Cancel
+                </a>
+                <button type="submit" name="submit" style="
+                    padding: 0.75rem 1.5rem; 
+                    background-color: #007bff; 
+                    color: white; 
+                    border: none; 
+                    border-radius: 5px; 
+                    cursor: pointer;
+                    font-size: 1rem;
+                ">
+                    Submit Project
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
 {% endblock %}

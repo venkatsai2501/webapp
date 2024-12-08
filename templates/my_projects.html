@@ -1,58 +1,113 @@
-
 {% extends 'base.html' %}
 
 {% block title %}My Projects{% endblock %}
 
 {% block content %}
-
-
 <head>
     <title>User Profile</title>
 </head>
 <body>
-    <h2>Welcome to your profile, {{ user.username }}!</h2>
+    
 
-<div class="projects-container">
-    <h2>My Projects</h2>
-    {% if projects %}
-        <div class="project-cards">
-            {% for project in projects %}
-            <div class="card">
-                <div class="card-content">
-                    <h3>{{ project.title }}</h3>
-                    <p><strong>Description:</strong> {{ project.description|truncatewords:20 }}</p>
-                    <p><strong>Team Members:</strong> 
-                        {% for team in project.team_members.all %}
-                            {{ team.username }}{% if not forloop.last %}, {% endif %}
-                        {% empty %}
-                            No Team members assigned.
-                        {% endfor %}
-                    </p>
-                    <!-- project_detail.html -->
-                    <p><strong>Faculty Members:</strong> 
-                        {% for faculty in project.faculty_members.all %}
-                            {{ faculty.username }}{% if not forloop.last %}, {% endif %}
-                        {% empty %}
-                            No faculty members assigned.
-                        {% endfor %}
-                    </p>
-                    <p><strong>Views:</strong> {{ project.views }}</p>
-                    {% if project.image %}
-                        <img src="{{ project.image.url }}" alt="{{ project.title }}" class="project-img" width="100%">
-                    {% else %}
-                        <p>No image available</p>
-                    {% endif %}
+    <div class="projects-container">
+        <h2>Welcome to your profile, {{ user.username }}!</h2>
+        <h2>My Projects</h2>
 
-                    <!-- Centered View Project Button -->
-                    <a href="{% url 'project_detail' project.id %}" class="btn view-project-btn">View Project</a>
+        {% if role == 'faculty' %}
+            <!-- Faculty View: Directly display projects under supervision -->
+            <h3>Projects Under Your Supervision</h3>
+            {% if projects %}
+                <div class="project-cards">
+                    {% for project in projects %}
+                    <div class="card">
+                        <div class="card-content">
+                            <h3>{{ project.title }}</h3>
+                            <p><strong>Description:</strong> {{ project.description|truncatewords:20 }}</p>
+                            <p><strong>Team Members:</strong> 
+                                {% for team in project.team_members.all %}
+                                    {{ team.username }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    No Team members assigned.
+                                {% endfor %}
+                            </p>
+                            <p><strong>Views:</strong> {{ project.views }}</p>
+                            {% if project.image %}
+                                <img src="{{ project.image.url }}" alt="{{ project.title }}" class="project-img" width="100%">
+                            {% else %}
+                                <p>No image available</p>
+                            {% endif %}
+                            <a href="{% url 'project_detail' project.id %}" class="btn view-project-btn">View Project</a>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
-            </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>No projects found.</p>
-    {% endif %}
-</div>
+            {% else %}
+                <p>No projects found under your supervision.</p>
+            {% endif %}
+        {% else %}
+            <!-- Student View: Bifurcate Saved (Drafts) and Submitted Projects -->
+            <h3>Saved Projects (Drafts)</h3>
+            {% if draft_projects %}
+                <div class="project-cards">
+                    {% for project in draft_projects %}
+                    <div class="card">
+                        <div class="card-content">
+                            <h3>{{ project.title }}</h3>
+                            <p><strong>Description:</strong> {{ project.description|truncatewords:20 }}</p>
+                            <p><strong>Faculty Members:</strong> 
+                                {% for faculty in project.faculty_members.all %}
+                                    {{ faculty.username }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    No faculty members assigned.
+                                {% endfor %}
+                            </p>
+                            <p><strong>Views:</strong> {{ project.views }}</p>
+                            {% if project.image %}
+                                <img src="{{ project.image.url }}" alt="{{ project.title }}" class="project-img" width="100%">
+                            {% else %}
+                                <p>No image available</p>
+                            {% endif %}
+                            <a href="{% url 'edit_project' project.id %}" class="btn edit-project-btn">Edit Project</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No saved projects found.</p>
+            {% endif %}
+            
+            <hr>
+            
+            <h3>Submitted Projects</h3>
+            {% if submitted_projects %}
+                <div class="project-cards">
+                    {% for project in submitted_projects %}
+                    <div class="card">
+                        <div class="card-content">
+                            <h3>{{ project.title }}</h3>
+                            <p><strong>Description:</strong> {{ project.description|truncatewords:20 }}</p>
+                            <p><strong>Faculty Members:</strong> 
+                                {% for faculty in project.faculty_members.all %}
+                                    {{ faculty.username }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    No faculty members assigned.
+                                {% endfor %}
+                            </p>
+                            <p><strong>Views:</strong> {{ project.views }}</p>
+                            {% if project.image %}
+                                <img src="{{ project.image.url }}" alt="{{ project.title }}" class="project-img" width="100%">
+                            {% else %}
+                                <p>No image available</p>
+                            {% endif %}
+                            <a href="{% url 'project_detail' project.id %}" class="btn view-project-btn">View Project</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No submitted projects found.</p>
+            {% endif %}
+        {% endif %}
+    </div>
 {% endblock %}
-
 </body>
